@@ -12,7 +12,12 @@
           "fr_FR": "Change Image"
         },
         "params": [
-          { "id": "useless", "name": "Useless", "locale_name": {"fr_FR": "Inutile"}, "type": "Boolean" }
+          {
+            "id": "useless",
+            "name": "Useless",
+            "locale_name": { "fr_FR": "Inutile" },
+            "type": "Boolean"
+          }
         ]
       }
     ],
@@ -28,7 +33,12 @@
     "markers": [
       {
         "params": [
-          { "id": "src", "name": "Source", "locale_name": {"fr_FR": "Source"}, "type": "String" }
+          {
+            "id": "src",
+            "name": "Source",
+            "locale_name": { "fr_FR": "Source" },
+            "type": "String"
+          }
         ]
       }
     ]
@@ -86,9 +96,12 @@
 
   "resources": [
     {
-      "id": "my_image.png",
-      "type": "Image",
-      "localization": false
+      "id": "document.pdf",
+      "type": "Zip",
+      "name": "Document",
+      "locale_name": {
+        "fr_FR": "Document"
+      }
     }
   ]
 }

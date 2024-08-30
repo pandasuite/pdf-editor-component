@@ -1,12 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html class="w-full h-full m-0 overflow-hidden">
   <head>
-    <title>Boilerplate Component for PandaSuite</title>
+    <title>PDF Component for PandaSuite</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"
     />
     <script src="app.js"></script>
   </head>
-  <body></body>
+  <body class="w-full h-full m-0 overflow-hidden flex flex-col">
+    <div id="toolbar" class="bg-white shadow-md z-[5000] h-8 w-full text-sm">
+      <div
+        id="toolbar-content"
+        class="w-full h-full flex items-center justify-center"
+        style="opacity: 0"
+      >
+        <input
+          id="currentPageInput"
+          type="number"
+          min="1"
+          class="mx-2 w-12 border border-gray-300 rounded text-center focus-outline-none"
+          value="1"
+        />
+        <span class="mx-2 text-gray-600">/</span>
+        <span id="pageCount" class="mx-2 text-gray-600">1</span>
+      </div>
+    </div>
+    <div id="pdf-container" class="w-full h-full overflow-hidden">
+      <canvas id="pdf-canvas" class="z-0"></canvas>
+    </div>
+  </body>
 </html>

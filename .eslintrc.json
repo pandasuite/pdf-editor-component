@@ -9,6 +9,9 @@
     "sourceType": "module"
   },
   "rules": {
-    "quotes": ["error", "double"]
+    "quotes": ["error", "double"],
+    "no-use-before-define": "off",
+    "object-curly-newline": "off",
+    "operator-linebreak"
   }
 }
