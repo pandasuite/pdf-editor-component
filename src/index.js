@@ -12,7 +12,6 @@ let totalPages = 0;
 let currentPage = 1;
 let lastValidPage = 1;
 
-const positions = [];
 let scaleFactor = 1;
 let panOffset = { x: 0, y: 0 };
 let originalPDFWidth = 0;
@@ -58,11 +57,27 @@ async function getOrCreatePdf() {
 }
 
 async function updatePdf(pdfDoc) {
+  const form = pdfDoc.getForm();
+  const fields = form?.getFields();
+  // loop through the fields and print their names and values
+  fields.forEach((field) => {
+    // field.enableReadOnly();
+  });
+
   const pdfBytes = await pdfDoc.save();
   const blob = new Blob([pdfBytes], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
 
   return url;
+}
+
+async function changePage(pageNumber) {
+  currentPage = pageNumber;
+  lastValidPage = pageNumber;
+  infiniteViewer.setZoom(1);
+  scaleFactor = 1;
+  await renderPage(pageNumber);
+  syncInteractiveZones();
 }
 
 function initToolbar() {
@@ -75,13 +90,10 @@ function initToolbar() {
   const currentPageInput = document.getElementById("currentPageInput");
   currentPageInput.max = totalPages;
 
-  currentPageInput.addEventListener("change", (e) => {
+  currentPageInput.addEventListener("change", async (e) => {
     const pageNumber = parseInt(e.target.value, 10);
     if (pageNumber >= 1 && pageNumber <= totalPages) {
-      currentPage = pageNumber;
-      lastValidPage = pageNumber;
-      infiniteViewer.setZoom(1);
-      renderPage(currentPage);
+      changePage(pageNumber);
     } else {
       e.target.value = lastValidPage;
     }
@@ -102,6 +114,7 @@ async function initPdfViewer(url) {
   await initMoveable();
   await initSelecto();
   await renderPage(currentPage);
+  syncInteractiveZones();
 }
 
 async function renderPage(pageNumber) {
@@ -143,18 +156,95 @@ async function renderPage(pageNumber) {
   updateZonesOnTransform();
 }
 
-function addInteractiveZone(rect) {
+function addInteractiveZone(rect, existingId = null) {
+  const uniqueId = existingId
+    ? existingId
+    : Date.now().toString(36) + Math.random().toString(36).substring(2);
+
   const newDiv = document.createElement("div");
   newDiv.className = "zone-interactive";
+  newDiv.id = uniqueId;
   document.getElementById("pdf-container").appendChild(newDiv);
 
+  if (existingId == null) {
+    const containerRect = document
+      .getElementById("pdf-canvas")
+      .getBoundingClientRect();
+    const position = calculatePosition(rect, containerRect);
+    const marker = { id: uniqueId };
+
+    markers.push(marker);
+    updateMarkerFromPosition(marker, position, true);
+    updateZoneStyle(newDiv, position, containerRect);
+  } else {
+    updateZonesOnTransform();
+  }
+}
+
+function syncInteractiveZones() {
   const containerRect = document
     .getElementById("pdf-canvas")
     .getBoundingClientRect();
-  const position = calculatePosition(rect, containerRect);
-  positions.push(position);
 
-  updateZoneStyle(newDiv, position, containerRect);
+  markers.forEach((marker) => {
+    if (marker.page !== currentPage) {
+      return;
+    }
+
+    const zone = document.getElementById(marker.id);
+    if (zone) {
+      updateZoneStyle(
+        zone,
+        {
+          x: marker.position.x,
+          y: marker.position.y,
+          width: marker.width,
+          height: marker.height,
+        },
+        containerRect,
+      );
+    } else {
+      addInteractiveZone(
+        {
+          left: marker.position.x,
+          top: marker.position.y,
+          width: marker.width,
+          height: marker.height,
+        },
+        marker.id,
+      );
+    }
+  });
+
+  document.querySelectorAll(".zone-interactive").forEach((zone) => {
+    const marker = markers.find((m) => m.id === zone.id);
+    if (!marker || marker.page !== currentPage) {
+      zone.remove();
+    }
+  });
+}
+
+function updateMarkerFromPosition(marker, position, sendEvent = false) {
+  const isChanged =
+    !marker.position ||
+    marker.position.x !== position.x ||
+    marker.position.y !== position.y ||
+    marker.width !== position.width ||
+    marker.height !== position.height;
+
+  marker.position = {
+    x: position.x,
+    y: position.y,
+  };
+  marker.width = position.width;
+  marker.height = position.height;
+  marker.page = currentPage;
+
+  if (sendEvent && isChanged) {
+    PandaBridge.send(PandaBridge.UPDATED, {
+      markers: marker,
+    });
+  }
 }
 
 function updateZoneStyle(zone, position, containerRect) {
@@ -174,6 +264,7 @@ function updateZoneStyle(zone, position, containerRect) {
 function updateZonesOnTransform() {
   if (moveable.target.length > 0) {
     setTargets([]);
+    deselectStudio();
   }
 
   const containerRect = document
@@ -181,10 +272,21 @@ function updateZonesOnTransform() {
     .getBoundingClientRect();
 
   document.querySelectorAll(".zone-interactive").forEach((zone, index) => {
-    updateZoneStyle(zone, positions[index], containerRect);
-  });
+    const marker = markers.find((m) => m.id === zone.id);
 
-  // moveable.updateTarget();
+    if (marker) {
+      updateZoneStyle(
+        zone,
+        {
+          x: marker.position.x,
+          y: marker.position.y,
+          width: marker.width,
+          height: marker.height,
+        },
+        containerRect,
+      );
+    }
+  });
 }
 
 async function initInfiniteViewer() {
@@ -247,6 +349,12 @@ async function initMoveable() {
   });
 }
 
+function deselectStudio() {
+  PandaBridge.send(PandaBridge.UPDATED, {
+    markers: null,
+  });
+}
+
 async function initSelecto() {
   const { default: Selecto } = await import("selecto");
 
@@ -259,10 +367,17 @@ async function initSelecto() {
     ratio: 0,
   });
 
-  // selecto.on("select", (e) => {
-  //   e.added.forEach((el) => el.classList.add("selected"));
-  //   e.removed.forEach((el) => el.classList.remove("selected"));
-  // });
+  selecto.on("select", (e) => {
+    const marker = markers.find((m) => m.id === e.inputEvent.target.id);
+
+    if (marker) {
+      PandaBridge.send(PandaBridge.UPDATED, {
+        markers: marker,
+      });
+    } else {
+      deselectStudio();
+    }
+  });
 
   selecto.on("dragStart", (e) => {
     const { inputEvent } = e;
@@ -279,7 +394,9 @@ async function initSelecto() {
   selecto.on("dragEnd", (e) => {
     if (
       e.inputEvent.target.className.includes("zone-interactive") ||
-      !e.isDrag
+      !e.isDrag ||
+      e.rect.width < 2 ||
+      e.rect.height < 2
     ) {
       return;
     }
@@ -305,7 +422,12 @@ function calculatePosition(rect, containerRect) {
   const width = (rect.width / containerRect.width) * originalPDFWidth;
   const height = (rect.height / containerRect.height) * originalPDFHeight;
 
-  return { x, y, width, height };
+  return {
+    x: Math.round(x),
+    y: Math.round(y),
+    width: Math.round(width),
+    height: Math.round(height),
+  };
 }
 
 function updatePositions() {
@@ -313,24 +435,19 @@ function updatePositions() {
     .getElementById("pdf-canvas")
     .getBoundingClientRect();
 
-  positions.length = 0;
-
   document.querySelectorAll(".zone-interactive").forEach((zone) => {
     const rect = zone.getBoundingClientRect();
-    positions.push(calculatePosition(rect, containerRect));
+    const position = calculatePosition(rect, containerRect);
+    const marker = markers.find((m) => m.id === zone.id);
+
+    if (marker) {
+      updateMarkerFromPosition(marker, position, true);
+    }
   });
 }
 
 async function onDomLoaded() {
   const pdfDoc = await getOrCreatePdf();
-
-  const form = pdfDoc.getForm();
-  const fields = form?.getFields();
-  // loop through the fields and print their names and values
-  fields.forEach((field) => {
-    // field.enableReadOnly();
-  });
-
   const url = await updatePdf(pdfDoc);
   initPdfViewer(url);
 }
@@ -350,14 +467,33 @@ PandaBridge.init(() => {
   PandaBridge.onUpdate((pandaData) => {
     properties = pandaData.properties;
     markers = pandaData.markers;
+    syncInteractiveZones();
+    if (moveable?.target?.length > 0) {
+      moveable.updateTarget();
+    }
   });
 
   /* Markers */
 
   PandaBridge.getSnapshotData(() => null);
 
-  PandaBridge.setSnapshotData((pandaData) => {
-    // pandaData.data.id
+  PandaBridge.setSnapshotData(async ({ data, params }) => {
+    const { id, page } = data || {};
+
+    if (moveable) {
+      if (!id) {
+        return setTargets([]);
+      }
+      if (currentPage !== page) {
+        const currentPageInput = document.getElementById("currentPageInput");
+        currentPageInput.value = page;
+        await changePage(page);
+      }
+      const element = document.getElementById(id);
+      if (element) {
+        return setTargets([element]);
+      }
+    }
   });
 
   /* Actions */

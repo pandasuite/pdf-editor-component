@@ -32,12 +32,29 @@
     ],
     "markers": [
       {
+        "hideSystemId": true,
+        "enableSource": true,
         "params": [
           {
-            "id": "src",
-            "name": "Source",
-            "locale_name": { "fr_FR": "Source" },
-            "type": "String"
+            "id": "position",
+            "name": "Position",
+            "locale_name": { "fr_FR": "Position" },
+            "type": "Point",
+            "value": { "x": 0, "y": 0 }
+          },
+          {
+            "id": "width",
+            "name": "Width",
+            "locale_name": { "fr_FR": "Largeur" },
+            "type": "Integer",
+            "value": 100
+          },
+          {
+            "id": "height",
+            "name": "Height",
+            "locale_name": { "fr_FR": "Hauteur" },
+            "type": "Integer",
+            "value": 100
           }
         ]
       }
