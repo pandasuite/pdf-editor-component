@@ -58,7 +58,31 @@
           }
         ]
       }
-    ]
+    ],
+    "defaults": {
+      "markers": {
+        "description": {
+          "value": "Page %s  [%s, %s, %s, %s]",
+          "args": [
+            {
+              "key": "page"
+            },
+            {
+              "key": "position.x"
+            },
+            {
+              "key": "position.y"
+            },
+            {
+              "key": "width"
+            },
+            {
+              "key": "height"
+            }
+          ]
+        }
+      }
+    }
   },
 
   "properties": [
