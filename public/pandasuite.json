@@ -308,7 +308,24 @@
 
   "properties": [],
 
-  "events": [],
+  "events": [
+    {
+      "id": "generated",
+      "name": "PDF Generated",
+      "locale_name": {
+        "fr_FR": "PDF Généré"
+      },
+      "queryable": {
+        "data": null,
+        "__desc_data": {
+          "name": "Base64 PDF",
+          "locale_name": {
+            "fr_FR": "Base64 PDF"
+          }
+        }
+      }
+    }
+  ],
 
   "actions": [
     {
@@ -329,6 +346,13 @@
           "bindable": true
         }
       ]
+    },
+    {
+      "id": "generate",
+      "name": "Generate",
+      "locale_name": {
+        "fr_FR": "Générer"
+      }
     }
   ],
 

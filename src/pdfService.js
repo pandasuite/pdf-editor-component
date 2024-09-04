@@ -66,12 +66,15 @@ export async function getOrCreatePdf() {
  * @param {PDFDocument} pdfDoc The PDF document to update.
  * @returns {Promise<string>} The URL of the updated PDF blob.
  */
-export async function updatePdf(pdfDoc) {
+export async function updatePdf(pdfDoc, { blob: useBlob = false } = {}) {
   const markers = getMarkers();
   await processMarkers(pdfDoc, markers);
 
   const pdfBytes = await pdfDoc.save();
   const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  if (useBlob) {
+    return blob;
+  }
   return URL.createObjectURL(blob);
 }
 

@@ -89,4 +89,18 @@ PandaBridge.init(() => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   });
+
+  PandaBridge.listen("generate", async () => {
+    const pdfDoc = await getOrCreatePdf();
+    const blob = await updatePdf(pdfDoc, { blob: true });
+
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+
+    PandaBridge.send("generated", [{ data: base64 }]);
+  });
 });
