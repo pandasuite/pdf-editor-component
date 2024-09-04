@@ -1,4 +1,3 @@
-import { set } from "lodash";
 import { getMoveable, setTargets } from "./moveable";
 import {
   getMarkers,
@@ -32,7 +31,7 @@ export function addInteractiveZone(rect, existingId = null) {
       .getElementById("pdf-canvas")
       .getBoundingClientRect();
     const position = calculatePosition(rect, containerRect);
-    const marker = { id: uniqueId };
+    const marker = { id: uniqueId, type: "text" };
 
     markers.push(marker);
     setMarkers(markers);

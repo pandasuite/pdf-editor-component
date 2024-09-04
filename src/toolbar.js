@@ -3,9 +3,9 @@ import { getTotalPages, setCurrentPage, getCurrentPage } from "./state";
 
 /**
  * Initializes the toolbar for navigating through the PDF pages.
- * @param {number} totalPages The total number of pages in the PDF.
  */
-export function initToolbar(totalPages) {
+export function initToolbar() {
+  const totalPages = getTotalPages();
   const pageCount = document.getElementById("pageCount");
   pageCount.innerText = totalPages;
 
@@ -17,7 +17,7 @@ export function initToolbar(totalPages) {
 
   currentPageInput.addEventListener("change", async (e) => {
     const pageNumber = parseInt(e.target.value, 10);
-    if (pageNumber >= 1 && pageNumber <= getTotalPages()) {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
       await changePage(pageNumber);
       setCurrentPage(pageNumber);
     } else {

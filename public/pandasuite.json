@@ -4,35 +4,11 @@
 
   "system": {
     "localization": false,
-    "actions": [
-      {
-        "id": "toMarker",
-        "name": "Change Image",
-        "locale_name": {
-          "fr_FR": "Change Image"
-        },
-        "params": [
-          {
-            "id": "useless",
-            "name": "Useless",
-            "locale_name": { "fr_FR": "Inutile" },
-            "type": "Boolean"
-          }
-        ]
-      }
-    ],
-    "events": [
-      {
-        "id": "triggerMarker",
-        "name": "Image",
-        "locale_name": {
-          "fr_FR": "Image"
-        }
-      }
-    ],
     "markers": [
       {
         "hideSystemId": true,
+        "hideEvents": true,
+        "hideActions": true,
         "enableSource": true,
         "params": [
           {
@@ -40,21 +16,263 @@
             "name": "Position",
             "locale_name": { "fr_FR": "Position" },
             "type": "Point",
-            "value": { "x": 0, "y": 0 }
+            "value": { "x": 0, "y": 0 },
+            "bindable": true
           },
           {
             "id": "width",
             "name": "Width",
             "locale_name": { "fr_FR": "Largeur" },
             "type": "Integer",
-            "value": 100
+            "value": 100,
+            "bindable": true
           },
           {
             "id": "height",
             "name": "Height",
             "locale_name": { "fr_FR": "Hauteur" },
             "type": "Integer",
-            "value": 100
+            "value": 100,
+            "bindable": true
+          },
+          {
+            "id": "type",
+            "name": "Type",
+            "locale_name": { "fr_FR": "Type" },
+            "type": "Dropdown",
+            "value": "text",
+            "items": [
+              {
+                "id": "text",
+                "name": "Text",
+                "locale_name": { "fr_FR": "Texte" }
+              },
+              {
+                "id": "image",
+                "name": "Image",
+                "locale_name": { "fr_FR": "Image" }
+              }
+            ],
+            "separator": true
+          },
+          {
+            "id": "content",
+            "name": "Content",
+            "locale_name": { "fr_FR": "Contenu" },
+            "type": "String",
+            "value": "",
+            "bindable": true,
+            "hidden": "marker.type != 'text'"
+          },
+          {
+            "id": "useUrl",
+            "name": "URL",
+            "locale_name": { "fr_FR": "URL" },
+            "type": "Boolean",
+            "value": true,
+            "hidden": "marker.type != 'image'"
+          },
+          {
+            "id": "image",
+            "name": "Image",
+            "type": "Bind",
+            "restrict": {
+              "output": ["Image"]
+            },
+            "required": true,
+            "hidden": "marker.type != 'image' || marker.useUrl"
+          },
+          {
+            "id": "imageUrl",
+            "name": "Image URL",
+            "locale_name": { "fr_FR": "URL de l'image" },
+            "type": "String",
+            "value": "",
+            "required": true,
+            "bindable": true,
+            "hidden": "marker.type != 'image' || !marker.useUrl"
+          },
+          {
+            "id": "fit",
+            "name": "Fit",
+            "locale_name": { "fr_FR": "Ajuster" },
+            "type": "Dropdown",
+            "value": "contain",
+            "items": [
+              {
+                "id": "contain",
+                "name": "Contain",
+                "locale_name": { "fr_FR": "Contenu" }
+              },
+              {
+                "id": "cover",
+                "name": "Cover",
+                "locale_name": { "fr_FR": "Couverture" }
+              },
+              {
+                "id": "stretch",
+                "name": "Stretch",
+                "locale_name": { "fr_FR": "Étirer" }
+              }
+            ],
+            "hidden": "marker.type != 'image'"
+          },
+          {
+            "id": "fontName",
+            "name": "Font",
+            "locale_name": { "fr_FR": "Police" },
+            "type": "Dropdown",
+            "value": "Helvetica",
+            "items": [
+              {
+                "id": "Courier",
+                "name": "Courier",
+                "locale_name": { "fr_FR": "Courier" }
+              },
+              {
+                "id": "Courier-Bold",
+                "name": "Courier-Bold",
+                "locale_name": { "fr_FR": "Courier-Bold" }
+              },
+              {
+                "id": "Courier-Oblique",
+                "name": "Courier-Oblique",
+                "locale_name": { "fr_FR": "Courier-Oblique" }
+              },
+              {
+                "id": "Courier-BoldOblique",
+                "name": "Courier-BoldOblique",
+                "locale_name": { "fr_FR": "Courier-BoldOblique" }
+              },
+              {
+                "id": "Helvetica",
+                "name": "Helvetica",
+                "locale_name": { "fr_FR": "Helvetica" }
+              },
+              {
+                "id": "Helvetica-Bold",
+                "name": "Helvetica-Bold",
+                "locale_name": { "fr_FR": "Helvetica-Bold" }
+              },
+              {
+                "id": "Helvetica-Oblique",
+                "name": "Helvetica-Oblique",
+                "locale_name": { "fr_FR": "Helvetica-Oblique" }
+              },
+              {
+                "id": "Helvetica-BoldOblique",
+                "name": "Helvetica-BoldOblique",
+                "locale_name": { "fr_FR": "Helvetica-BoldOblique" }
+              },
+              {
+                "id": "Times-Roman",
+                "name": "Times-Roman",
+                "locale_name": { "fr_FR": "Times-Roman" }
+              },
+              {
+                "id": "Times-Bold",
+                "name": "Times-Bold",
+                "locale_name": { "fr_FR": "Times-Bold" }
+              },
+              {
+                "id": "Times-Italic",
+                "name": "Times-Italic",
+                "locale_name": { "fr_FR": "Times-Italic" }
+              },
+              {
+                "id": "Times-BoldItalic",
+                "name": "Times-BoldItalic",
+                "locale_name": { "fr_FR": "Times-BoldItalic" }
+              },
+              {
+                "id": "Symbol",
+                "name": "Symbol",
+                "locale_name": { "fr_FR": "Symbol" }
+              },
+              {
+                "id": "ZapfDingbats",
+                "name": "ZapfDingbats",
+                "locale_name": { "fr_FR": "ZapfDingbats" }
+              }
+            ],
+            "separator": true,
+            "hidden": "marker.type != 'text'"
+          },
+          {
+            "id": "fontSize",
+            "name": "Size",
+            "locale_name": { "fr_FR": "Taille" },
+            "type": "Float",
+            "value": 12,
+            "restrict": {
+              "min": 0.5,
+              "max": 200,
+              "step": 0.5,
+              "stepShift": 1
+            },
+            "hidden": "marker.type != 'text'",
+            "bindable": true
+          },
+          {
+            "id": "color",
+            "name": "Color",
+            "locale_name": { "fr_FR": "Couleur" },
+            "type": "Color",
+            "value": "#000000",
+            "restrict": {
+              "alpha": false
+            },
+            "hidden": "marker.type != 'text'"
+          },
+          {
+            "id": "align",
+            "name": "Alignment",
+            "locale_name": { "fr_FR": "Alignement" },
+            "type": "Dropdown",
+            "value": "center",
+            "items": [
+              {
+                "id": "left",
+                "name": "Left",
+                "locale_name": { "fr_FR": "Gauche" }
+              },
+              {
+                "id": "center",
+                "name": "Center",
+                "locale_name": { "fr_FR": "Centre" }
+              },
+              {
+                "id": "right",
+                "name": "Right",
+                "locale_name": { "fr_FR": "Droite" }
+              }
+            ],
+            "hidden": "marker.type != 'text'"
+          },
+          {
+            "id": "verticalAlign",
+            "name": "Vertical Alignment",
+            "locale_name": { "fr_FR": "Alignement vertical" },
+            "type": "Dropdown",
+            "value": "top",
+            "items": [
+              {
+                "id": "top",
+                "name": "Top",
+                "locale_name": { "fr_FR": "Haut" }
+              },
+              {
+                "id": "center",
+                "name": "Center",
+                "locale_name": { "fr_FR": "Centre" }
+              },
+              {
+                "id": "bottom",
+                "name": "Bottom",
+                "locale_name": { "fr_FR": "Bas" }
+              }
+            ],
+            "hidden": "marker.type != 'text'"
           }
         ]
       }
@@ -62,7 +280,7 @@
     "defaults": {
       "markers": {
         "description": {
-          "value": "Page %s  [%s, %s, %s, %s]",
+          "value": "Page %s  [%s, %s, %s, %s]  %s",
           "args": [
             {
               "key": "page"
@@ -78,6 +296,9 @@
             },
             {
               "key": "height"
+            },
+            {
+              "key": "type"
             }
           ]
         }
@@ -85,55 +306,33 @@
     }
   },
 
-  "properties": [
-    {
-      "id": "searchTerm",
-      "name": "Search Term",
-      "locale_name": {
-        "fr_FR": "Terme de recherche"
-      },
-      "type": "String",
-      "value": "panda"
-    }
-  ],
+  "properties": [],
 
-  "events": [
-    {
-      "id": "imageChanged",
-      "name": "Image Changed",
-      "locale_name": {
-        "fr_FR": "Image Changée"
-      }
-    }
-  ],
+  "events": [],
 
   "actions": [
     {
-      "id": "changeColor",
-      "name": "Change Color",
+      "id": "download",
+      "name": "Download",
+      "locale_name": {
+        "fr_FR": "Télécharger"
+      },
       "params": [
         {
-          "id": "backgroundColor",
-          "name": "Background Color",
+          "id": "fileName",
+          "name": "File Name",
           "locale_name": {
-            "fr_FR": "Couleur de fond"
+            "fr_FR": "Nom du fichier"
           },
           "type": "String",
-          "value": "#FFFFFF"
+          "value": "generated-panda-file.pdf",
+          "bindable": true
         }
       ]
     }
   ],
 
-  "synchronization": [
-    {
-      "id": "synchroImages",
-      "name": "Synchronize images",
-      "locale_name": {
-        "fr_FR": "Synchroniser images"
-      }
-    }
-  ],
+  "synchronization": [],
 
   "resources": [
     {

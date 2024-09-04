@@ -1,8 +1,8 @@
+import { reloadPdf } from "./pdfService";
 import { getMarkers } from "./state";
 import { calculatePosition, updateMarkerFromPosition } from "./utils";
 
 let moveable = null;
-let targets = [];
 
 /**
  * Initializes the Moveable component to enable dragging and resizing of interactive zones.
@@ -11,7 +11,7 @@ export async function initMoveable() {
   const { default: Moveable } = await import("moveable");
 
   moveable = new Moveable(document.body, {
-    target: targets,
+    target: [],
     draggable: true,
     resizable: true,
     keepRatio: false,
@@ -21,8 +21,11 @@ export async function initMoveable() {
     e.target.style.transform = e.transform;
   });
 
-  moveable.on("dragEnd", () => {
+  moveable.on("dragEnd", (e) => {
     updatePositions();
+    if (e.isDrag) {
+      reloadPdf();
+    }
   });
 
   moveable.on("resize", (e) => {
@@ -31,8 +34,11 @@ export async function initMoveable() {
     e.target.style.transform = e.drag.transform;
   });
 
-  moveable.on("resizeEnd", () => {
+  moveable.on("resizeEnd", (e) => {
     updatePositions();
+    if (e.isDrag) {
+      reloadPdf();
+    }
   });
 }
 
@@ -49,9 +55,8 @@ export function getMoveable() {
  * @param {Array} newTargets The new targets to manipulate.
  */
 export function setTargets(newTargets) {
-  targets = newTargets;
   if (moveable) {
-    moveable.target = targets;
+    moveable.target = newTargets;
   }
 }
 

@@ -63,6 +63,11 @@ export async function initSelecto() {
   selecto.on("selectEnd", (e) => {
     if (e.isDragStart) {
       e.inputEvent.preventDefault();
+      getMoveable()
+        .waitToChangeTarget()
+        .then(() => {
+          getMoveable().dragStart(e.inputEvent);
+        });
     }
     setTargets(e.selected);
   });
