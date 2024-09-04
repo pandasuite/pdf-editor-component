@@ -6,6 +6,7 @@ import { changePage } from "./pdfService";
 import { getCurrentPage } from "./state";
 
 let selecto = null;
+let isDragging = false;
 
 /**
  * Initializes the Selecto component to allow selection of interactive zones.
@@ -40,6 +41,8 @@ export async function initSelecto() {
     const { target } = inputEvent;
     const moveable = getMoveable();
 
+    isDragging = true;
+
     if (
       moveable.isMoveableElement(target) ||
       moveable.target.some((t) => t === target || t.contains(target))
@@ -49,6 +52,8 @@ export async function initSelecto() {
   });
 
   selecto.on("dragEnd", (e) => {
+    isDragging = false;
+
     if (
       e.inputEvent.target.className.includes("zone-interactive") ||
       !e.isDrag ||
@@ -63,10 +68,13 @@ export async function initSelecto() {
   selecto.on("selectEnd", (e) => {
     if (e.isDragStart) {
       e.inputEvent.preventDefault();
+
       getMoveable()
         .waitToChangeTarget()
         .then(() => {
-          getMoveable().dragStart(e.inputEvent);
+          if (isDragging) {
+            getMoveable().dragStart(e.inputEvent);
+          }
         });
     }
     setTargets(e.selected);
