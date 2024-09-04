@@ -13,6 +13,7 @@ import { setMarkers, setProperties } from "./state";
 import { selectFromStudio } from "./selecto";
 import { getMarkers } from "./state";
 import { getMoveable } from "./moveable";
+import { getProperties } from "./state";
 
 let markerToSelect = null;
 
@@ -44,6 +45,7 @@ PandaBridge.init(() => {
   });
 
   PandaBridge.onUpdate(async (pandaData) => {
+    const properties = getProperties();
     const markers = getMarkers();
 
     setProperties(pandaData.properties);
@@ -51,8 +53,9 @@ PandaBridge.init(() => {
 
     if (PandaBridge.isStudio) {
       const markersChanged = !isEqual(pandaData.markers, markers);
+      const propertiesChanged = !isEqual(pandaData.properties, properties);
 
-      if (markersChanged) {
+      if (markersChanged || propertiesChanged) {
         debounce(() => {
           reloadPdf();
         }, 100)();

@@ -306,7 +306,64 @@
     }
   },
 
-  "properties": [],
+  "properties": [
+    {
+      "id": "newDocument",
+      "name": "New Document",
+      "locale_name": {
+        "fr_FR": "Nouveau document"
+      },
+      "type": "Boolean",
+      "value": true,
+      "bindable": true
+    },
+    {
+      "id": "width",
+      "name": "Width",
+      "locale_name": {
+        "fr_FR": "Largeur"
+      },
+      "type": "Float",
+      "value": 612,
+      "restrict": {
+        "min": 100,
+        "max": 1584,
+        "step": 10,
+        "stepShift": 50
+      },
+      "bindable": true,
+      "hidden": "!properties.newDocument.value"
+    },
+    {
+      "id": "height",
+      "name": "Height",
+      "locale_name": {
+        "fr_FR": "Hauteur"
+      },
+      "type": "Float",
+      "value": 792,
+      "restrict": {
+        "min": 100,
+        "max": 1584,
+        "step": 10,
+        "stepShift": 50
+      },
+      "bindable": true,
+      "hidden": "!properties.newDocument.value"
+    },
+    {
+      "id": "fileName",
+      "name": "File Name",
+      "locale_name": {
+        "fr_FR": "Nom du fichier"
+      },
+      "type": "String",
+      "bindable": true,
+      "required": true,
+      "placeholder": "pdf-file.pdf",
+      "hidden": "properties.newDocument.value"
+    }
+  ],
 
   "events": [
     {
@@ -365,7 +422,10 @@
       "name": "Document",
       "locale_name": {
         "fr_FR": "Document"
-      }
+      },
+      "required": true,
+      "bindable": true,
+      "hidden": "properties.newDocument.value"
     }
   ]
 }

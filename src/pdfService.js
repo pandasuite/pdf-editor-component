@@ -24,6 +24,7 @@ import { setLastValidPage } from "./state";
 import { setScaleFactor } from "./state";
 import { getMarkers } from "./state";
 import { processMarkers } from "./markerProcessor";
+import { getProperties } from "./state";
 
 let pdfDocViewer = null;
 let currentRenderTask = null;
@@ -33,19 +34,15 @@ let currentRenderTask = null;
  * @returns {Promise<string|null>} The URL of the PDF file or null if not found.
  */
 export async function getPdfUrl() {
-  const url = PandaBridge.resolvePath("document.pdf");
-  if (!url) return null;
+  const properties = getProperties();
 
-  try {
-    const files = await fetch(`${url}.extract-content.json`).then((res) =>
-      res.json(),
-    );
-    const file = files.find((f) => f.endsWith(".pdf"));
-    return file ? `${url}${file}?no_redirect` : null;
-  } catch {
-    console.log("No extract-content.json file found at", url);
-    return null;
+  if (!properties.newDocument) {
+    const url = PandaBridge.resolvePath("document.pdf");
+    if (url) {
+      return `${url}${properties.fileName}?no_redirect`;
+    }
   }
+  return null;
 }
 
 /**
@@ -53,12 +50,29 @@ export async function getPdfUrl() {
  * @returns {Promise<PDFDocument>} The loaded or newly created PDF document.
  */
 export async function getOrCreatePdf() {
+  const { width, height } = getProperties();
   const url = await getPdfUrl();
+
   if (url) {
-    const existingPdfBytes = await fetch(url).then((res) => res.arrayBuffer());
-    return PDFDocument.load(existingPdfBytes);
+    const existingPdfBytes = await fetch(url)
+      .then((res) => {
+        if (res.ok) {
+          return res.arrayBuffer();
+        }
+        return null;
+      })
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
+    if (existingPdfBytes) {
+      return PDFDocument.load(existingPdfBytes);
+    }
   }
-  return PDFDocument.create();
+  const pdfDoc = await PDFDocument.create();
+  pdfDoc.addPage([width, height]);
+
+  return pdfDoc;
 }
 
 /**
