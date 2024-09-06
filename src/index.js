@@ -90,7 +90,11 @@ PandaBridge.init(() => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+
+    // Assume there might be a memory leak because Android doesn't support synchronous downloads.
+    if (!window.BlobHandler) {
+      URL.revokeObjectURL(url);
+    }
   });
 
   PandaBridge.listen("generate", async () => {
