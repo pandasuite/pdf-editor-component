@@ -9,6 +9,7 @@
         "hideSystemId": true,
         "hideEvents": true,
         "hideActions": true,
+        "hideAddMarkerButton": true,
         "enableSource": true,
         "params": [
           {
